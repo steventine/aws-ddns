@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "id": "3b24e57a-e8df-e73d-0861-9a4d28864486",
+    "detail-type": "Scheduled Event",
+    "source": "aws.events",
+    "account": "174737207670",
+    "time": "2022-09-24T16:55:50Z",
+    "region": "us-east-1",
+    "resources": [
+        "arn:aws:events:us-east-1:111111111111:rule/PruneSchedule"
+    ],
+    "detail": {}
+}

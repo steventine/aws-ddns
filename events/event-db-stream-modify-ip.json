@@ -1,0 +1,43 @@
+{"Records":[
+    {
+    "eventID": "6ca40a92721ff233defbcb18c7b99917",
+    "eventName": "MODIFY",
+    "eventVersion": "1.1",
+    "eventSource": "aws:dynamodb",
+    "awsRegion": "us-east-1",
+    "dynamodb": {
+        "ApproximateCreationDateTime": 1663819432,
+        "Keys": {
+            "deviceName": {
+                "S": "Test111"
+            }
+        },
+        "NewImage": {
+            "ip": {
+                "S": "1.2.3.6"
+            },
+            "deviceName": {
+                "S": "Test111"
+            },
+            "lastUpdate": {
+                "N": "1663819431937"
+            }
+        },
+        "OldImage": {
+            "ip": {
+                "S": "1.2.3.5"
+            },
+            "deviceName": {
+                "S": "Test111"
+            },
+            "lastUpdate": {
+                "N": "1663819374296"
+            }
+        },
+        "SequenceNumber": "800000000016291311277",
+        "SizeBytes": 85,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+    },
+    "eventSourceARN": "arn:aws:dynamodb:us-east-1:111111111111:table/ddns-test-DDNSTable-LUGI1111111/stream/2022-09-22T02:37:12.303"
+    }]
+}

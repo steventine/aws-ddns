@@ -1,0 +1,5 @@
+{
+    "httpMethod": "GET",
+    "resource": "/ddns/devices/",
+    "path": "/ddns/devices/"
+}

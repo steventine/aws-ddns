@@ -1,0 +1,150 @@
+{
+    "configurations": [
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:ProcessDynamoDBStream New Entry",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "ProcessDynamoDBStream"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-db-stream-insert.json"
+                },
+                "environmentVariables": {
+                    "SAMPLE_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX",
+                    "DNS_ZONE": "ROUTE53-ZONE-ID-HERE",
+                    "DNS_DOMAIN": "example.com"}
+            }
+        },        
+         {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:ProcessDynamoDBStream IP Update",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "ProcessDynamoDBStream"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-db-stream-modify-ip.json"
+                },
+                "environmentVariables": {
+                    "SAMPLE_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX",
+                    "DNS_ZONE": "ROUTE53-ZONE-ID-HERE",
+                    "DNS_DOMAIN": "example.com"}
+            }
+        },
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:ProcessDynamoDBStream Time Update",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "ProcessDynamoDBStream"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-db-stream-modify-time.json"
+                },
+                "environmentVariables": {
+                    "SAMPLE_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX",
+                    "DNS_ZONE": "ROUTE53-ZONE-ID-HERE",
+                    "DNS_DOMAIN": "example.com"}
+            }
+        },   
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:ProcessDynamoDBStream Remove",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "ProcessDynamoDBStream"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-db-stream-remove.json"
+                },
+                "environmentVariables": {
+                    "SAMPLE_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX",
+                    "DNS_ZONE": "ROUTE53-ZONE-ID-HERE",
+                    "DNS_DOMAIN": "example.com"}
+            }
+        },    
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:ddnsPruneFunction Prune Timer",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "ddnsPruneFunction"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-ddns-prune.json"
+                },
+                "environmentVariables": {
+                    "DDNS_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX"}
+            }
+        },
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:putDdnsIpByNameFunction HTTP IP Update From Device",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "putDdnsIpByNameFunction"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-put-ddns-ip-by-name.json"
+                },
+                "environmentVariables": {
+                    "DDNS_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX"}
+            }
+        },             
+       {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:getDdnsAllItemsFunction",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "getDdnsAllItemsFunction"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-get-ddns-all-items.json"
+                },
+                "environmentVariables": {
+                    "DDNS_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX"
+                }
+            }
+        },
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "ddns-test:getDdnsIpByNameFunction",
+            "invokeTarget": {
+                "target": "template",
+                "templatePath": "${workspaceFolder}/template.yml",
+                "logicalId": "getDdnsIpByNameFunction"
+            },
+            "lambda": {
+                "payload": {
+                    "path": "${workspaceFolder}/events/event-get-ddns-by-name.json"
+                },
+                "environmentVariables": {
+                    "DDNS_TABLE": "ddns-test-DDNSTable-LUGI26DTMEPX"
+                }
+            }
+        }
+    ]
+}

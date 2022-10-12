@@ -1,0 +1,175 @@
+# This is the SAM template that represents the architecture of your serverless application
+# https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-template-basics.html
+
+# The AWSTemplateFormatVersion identifies the capabilities of the template
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Dynamic DNS Service
+
+# Transform section specifies one or more macros that AWS CloudFormation uses to process your template
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
+Transform: AWS::Serverless-2016-10-31
+
+# Shared configuration for all resources, more in
+# https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    # The PermissionsBoundary allows users to safely develop with their function's permissions constrained
+    # to their current application. All the functions and roles in this application have to include it and
+    # it has to be manually updated when you add resources to your application.
+    # More information in https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html
+    PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppId}-${AWS::Region}-PermissionsBoundary'
+
+Parameters:
+  AppId:
+    Type: String
+
+# Resources declares the AWS resources that you want to include in the stack
+# https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
+Resources:
+  # Each Lambda function is defined by properties:
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+
+  # This is a Lambda function config associated with the source code: get-ddns-all-items.js
+  getDdnsAllItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/get-ddns-all-items.getAllItemsHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 60
+      Description: HTTP GET method to retrieve all device IP from DynamoDB
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the DDNSTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DDNSTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DDNS_TABLE: !Ref DDNSTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ddns/devices/
+            Method: GET
+    
+  # This is a Lambda function config associated with the source code: put-ddns-ip-by-name.js
+  putDdnsIpByNameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/put-ddns-ip-by-name.putByNameHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 60
+      Description: HTTP PUT method to accept a device IP address update to be stored in the DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DDNSTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DDNS_TABLE: !Ref DDNSTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ddns/devices/{deviceName}
+            Method: PUT
+
+  # This is a Lambda function config associated with the source code: get-ddns-ip-by-name.js
+  getDdnsIpByNameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/get-ddns-ip-by-name.getByNameHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 60
+      Description: HTTP GET method to retrieve a device IP address from the DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DDNSTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DDNS_TABLE: !Ref DDNSTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ddns/devices/{deviceName}
+            Method: GET
+
+  # This is a Lambda function config associated with the source code: ddns-prune.js
+  ddnsPruneFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/ddns-prune.ddnsPruneHandler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 60
+      Description: Find and remove stale DynamoDB items.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DDNSTable
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DDNS_TABLE: !Ref DDNSTable
+          PRUNE_AGE_MIN: 5
+      Events:
+        ScheduledTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(2 hours)'
+            Name: PruneSchedule
+            Description: Prune old entries from the DB
+            Enabled: true
+  
+  # This is a Lambda function config associated with the source code: db-stream-item-change.js
+  ProcessDynamoDBStream:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/db-stream-item-change.itemChangeHandler
+      Runtime: nodejs14.x
+      Policies: 
+        - AWSLambdaDynamoDBExecutionRole
+        - Route53ChangeResourceRecordSetsPolicy:
+            HostedZoneId: ROUTE53-ZONE-ID-HERE
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          DDNS_TABLE: !Ref DDNSTable
+          DNS_ZONE: ROUTE53-ZONE-ID-HERE
+          DNS_DOMAIN: example.com
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt DDNSTable.StreamArn
+            BatchSize: 100
+            StartingPosition: TRIM_HORIZON
+
+  # This is the DynamoDB table
+  #   The full Dynamo Syntax is at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
+  DDNSTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      AttributeDefinitions: 
+        - AttributeName: deviceName
+          AttributeType: S
+      KeySchema: 
+        - AttributeName: deviceName
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES

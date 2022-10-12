@@ -1,0 +1,32 @@
+{"Records":[
+    {
+        "eventID": "e667508dff3a7c6880dae6267a9d9761",
+        "eventName": "REMOVE",
+        "eventVersion": "1.1",
+        "eventSource": "aws:dynamodb",
+        "awsRegion": "us-east-1",
+        "dynamodb": {
+          "ApproximateCreationDateTime": 1663816210,
+          "Keys": {
+            "deviceName": {
+              "S": "TestCCC"
+            }
+          },
+          "OldImage": {
+            "ip": {
+              "S": "5.4.3.3"
+            },
+            "deviceName": {
+              "S": "TestCCC"
+            },
+            "lastUpdate": {
+              "N": "55667788"
+            }
+          },
+          "SequenceNumber": "300000000066580370373",
+          "SizeBytes": 45,
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        },
+        "eventSourceARN": "arn:aws:dynamodb:us-east-1:111111111111:table/ddns-test-DDNSTable-LUGI1111111/stream/2022-09-22T02:37:12.303"
+      }
+]}

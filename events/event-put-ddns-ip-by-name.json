@@ -1,0 +1,17 @@
+{
+    "resource": "/ddns/devices/",
+    "path": "/ddns/devices/",
+    "httpMethod": "PUT",
+    "headers": {
+        "Accept": "*/*",
+        "content-type": "application/json"
+    },
+    "queryStringParameters": null,
+    "multiValueQueryStringParameters": null,
+    "pathParameters": {
+        "deviceName": "Test111"
+    },
+    "stageVariables": null,
+    "body": "{\"ip\":\"1.2.3.5\"}",
+    "isBase64Encoded": false
+}

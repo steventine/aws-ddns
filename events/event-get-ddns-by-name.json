@@ -1,0 +1,8 @@
+{
+    "httpMethod": "GET",
+    "resource": "/ddns/devices/",
+    "path": "/ddns/devices/",
+    "pathParameters": {
+        "deviceName": "Test111"
+    }
+}
